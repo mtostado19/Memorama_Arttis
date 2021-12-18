@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "748628702481",
+    "project_id": "memorama-arttis",
+    "storage_bucket": "memorama-arttis.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:748628702481:android:4c1abd49753c246fcec8b0",
+        "android_client_info": {
+          "package_name": "com.example.memorama_arttis"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "748628702481-382iprmj1d0rtj5dmsqu3sju7da9t4q3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbU1ZcV6VXVFmxZhDmKNWYNPqloXBOUEA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "748628702481-382iprmj1d0rtj5dmsqu3sju7da9t4q3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
