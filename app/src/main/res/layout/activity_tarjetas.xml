@@ -5,29 +5,30 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity"
-    android:gravity="top">
+    android:gravity="center">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="15dp">
+        android:layout_margin="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="¡Selecciona una partida!"
-            android:textSize="35dp"/>
+            android:text="¡A jugar!"
+            android:textSize="50dp"/>
 
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvPartidas"
+    <GridView
+        android:id="@+id/gridView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-    </androidx.recyclerview.widget.RecyclerView>
-
-
+        android:layout_height="match_parent"
+        android:numColumns="6"
+        android:padding="5dp"
+        android:verticalSpacing="5dp"
+        android:horizontalSpacing="5dp"
+        android:layout_gravity="center"
+        android:gravity="center"/>
 
 </LinearLayout>

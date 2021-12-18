@@ -4,15 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.DatabaseReference
-
-
-
-
-
-
 
 class MainActivity : AppCompatActivity() {
     private lateinit var btn_crear : Button
@@ -21,8 +13,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        btn_crear = findViewById(R.id.btn_crearPartidas);
+        btn_crear = findViewById(R.id.btn_crearPartidas)
 
+        // Instancia base de datos
         val database = FirebaseDatabase.getInstance()
         val myRef = database.getReference("message")
 
