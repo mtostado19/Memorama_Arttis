@@ -34,16 +34,18 @@ class MainActivity : AppCompatActivity() {
         btn_crear.setOnClickListener { it ->
             val view = it
             val myRef = database.getReference("party")
-            var currentKey = ""
+            var currentKey:String? = ""
             myRef.get().addOnSuccessListener {
-                val value: HashMap<String, String> = it.value as HashMap<String, String>
-                for (element in value) {
-                    val host = value[element.key].toString().split("host=")[1].split(",")[0]
-                    if (host == textInput.text.toString()) {
-                        currentKey = element.key
-                        println("------------- key ----------")
-                        println(currentKey)
-                        break
+                val value: HashMap<String, String>? = it.value as HashMap<String, String>?
+                if (value != null) {
+                    for (element in value) {
+                        val host = value[element.key].toString().split("host=")[1].split(",")[0]
+                        if (host == textInput.text.toString()) {
+                            currentKey = element.key
+                            println("------------- key ----------")
+                            println(currentKey)
+                            break
+                        }
                     }
                 }
 
