@@ -120,20 +120,24 @@ class MainActivity : AppCompatActivity() {
 
     fun findHost(hostName: String?) {
         val currentGame = database.getReference("game")
-        currentGame.get().addOnSuccessListener {
-            val value: HashMap<String, String>? = it.value as HashMap<String, String>?
-            if (value != null) {
-                for (element in value) {
-                    val host = value[element.key].toString().split("host=")[1].split(",")[0]
-                    if (host == hostName) {
-                        val intent = Intent(this, Tarjetas::class.java)
-                        intent.putExtra("difficult", sliderDificultad.value.toInt().toString())
-                        intent.putExtra("HOST", textInput.text.toString())
-                        startActivity(intent)
-                        break
+        try {
+            currentGame.get().addOnSuccessListener {
+                val value: HashMap<String, String>? = it.value as HashMap<String, String>?
+                if (value != null) {
+                    for (element in value) {
+                        val host = value[element.key].toString().split("host=")[1].split(",")[0]
+                        if (host == hostName) {
+                            val intent = Intent(this, Tarjetas::class.java)
+                            intent.putExtra("difficult", sliderDificultad.value.toInt().toString())
+                            intent.putExtra("HOST", textInput.text.toString())
+                            startActivity(intent)
+                            break
+                        }
                     }
                 }
             }
+        } catch (error: Exception) {
+            println("ERROR")
         }
 
     }

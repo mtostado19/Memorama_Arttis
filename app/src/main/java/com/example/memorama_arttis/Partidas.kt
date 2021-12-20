@@ -16,6 +16,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import java.lang.Exception
 
 class PartysAdapter(val tostadoCum: ArrayList<PartyClass>) :
     RecyclerView.Adapter<PartysAdapter.ViewHolder>() {
@@ -112,8 +113,11 @@ class Partidas : AppCompatActivity() {
         }
         myRef.addValueEventListener(postListener)
 
-
-        rv.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        try {
+            rv.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        } catch (error: Exception){
+            println("ERROR")
+        }
 
     }
 
