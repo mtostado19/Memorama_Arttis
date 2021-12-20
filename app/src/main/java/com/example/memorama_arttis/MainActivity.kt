@@ -51,12 +51,15 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "El nombre de usuario ya se encuentra en uso", Toast.LENGTH_LONG).show()
                 } else {
                     textInput.isEnabled = false
+                    btn_buscar.isEnabled = false
+                    btn_crear.isEnabled = false
+                    sliderDificultad.isEnabled = false
 
                     val newParty = PartyClass(textInput.text.toString(), sliderDificultad.value.toInt());
                     myRef.push().setValue(newParty)
 
                     val mySnackbar = Snackbar.make(view,
-                        "Esperando...", 30000)
+                        "Esperando...", Snackbar.LENGTH_INDEFINITE)
                     mySnackbar.setAction("Cancelar") { MyUndoListener() }
                     mySnackbar.show()
                 }
@@ -72,6 +75,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intento1)
         }
     }
+
     fun MyUndoListener() {
         val currentGame = database.getReference("party")
         currentGame.get().addOnSuccessListener {
@@ -85,6 +89,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
         textInput.isEnabled = true
+        btn_buscar.isEnabled = true
+        btn_crear.isEnabled = true
+        sliderDificultad.isEnabled = true
 
     }
 }

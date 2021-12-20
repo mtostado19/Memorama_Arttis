@@ -64,10 +64,10 @@ class Partidas : AppCompatActivity() {
 
 
         val partysss = arrayListOf<PartyClass>()
-        val xd = arrayListOf<PartyClass>()
+
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-
+                partysss.clear()
                 dataSnapshot.getChildren().forEach {
                     println("----------------------------- jeje funciono")
                     val product = it.getValue(PartyClass::class.java)
@@ -78,6 +78,8 @@ class Partidas : AppCompatActivity() {
                 println(partysss)
 
                 rv.adapter = PartysAdapter(partysss)
+
+
 
             }
 
