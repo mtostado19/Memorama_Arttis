@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.FirebaseDatabase
 
@@ -43,8 +45,20 @@ class PartysAdapter() :
 }
 
 class Partidas : AppCompatActivity() {
+
+    private lateinit var rv: RecyclerView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_partidas)
+
+        rv = findViewById(R.id.rvPartidas)
+        rv.layoutManager = LinearLayoutManager(this)
+
+        rv.adapter = PartysAdapter()
+        rv.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+
+
+
     }
 }
