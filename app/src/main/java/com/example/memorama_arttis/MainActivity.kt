@@ -156,7 +156,6 @@ class MainActivity : AppCompatActivity() {
                             intent.putExtra("difficult", sliderDificultad.value.toInt().toString())
                             intent.putExtra("HOST", textInput.text.toString())
                             startActivity(intent)
-                            finish()
                             break
                         }
                     }

@@ -21,7 +21,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
 
     private var gridView: GridView ?= null
     private var arrayList: ArrayList<MemoramaData> ?= null
-    private var finalDataArray: ArrayList<MemoramaData> ?= null
+    private var finalDataArrayMain: ArrayList<MemoramaData> ?= null
     private var memoramaAdaptar: MemoramaAdaptar ?= null
     private lateinit var database: FirebaseDatabase
     private var firstSelectedItem = -1
@@ -35,6 +35,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         database = FirebaseDatabase.getInstance()
         var host:String? = ""
         if (intent != null) {
@@ -138,32 +139,23 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
                 val value = dataSnapshot.value.toString()
                 gson = Gson()
                 CoroutineScope(IO).launch {
-                    finalDataArray = async {
+                    finalDataArrayMain = async {
                         var arraySize =  if (intent.getStringExtra("difficult") == "1") 16 else 36
                         getCurrentValue(value, arraySize)
                     }.await()
+                    println("REEEEEEEEEEEEEE")
+                    println(gson.toJson(finalDataArrayMain))
+
 
                 }
-
-
                 currentGameData = gson.fromJson(value, Juego::class.java)
-                currentGameData.gameData = finalDataArray
-                gridView = findViewById(R.id.gridView)
+                currentGameData.gameData = finalDataArrayMain
+
                 arrayList = currentGameData.gameData
+                gridView = findViewById(R.id.gridView)
 
-
-
-                memoramaAdaptar = MemoramaAdaptar(applicationContext,arrayList!!)
+                memoramaAdaptar = MemoramaAdaptar(this@Tarjetas,arrayList!!)
                 gridView?.adapter = memoramaAdaptar
-//                if (firstTime) {
-//                    memoramaAdaptar = MemoramaAdaptar(applicationContext,arrayList!!)
-//                    gridView?.adapter = memoramaAdaptar
-//                    firstTime = false
-//                } else {
-//                    memoramaAdaptar!!.clear()
-//                    memoramaAdaptar!!.addAll(arrayList!!)
-//                }
-
                 gridView?.onItemClickListener = this@Tarjetas
 
             }
