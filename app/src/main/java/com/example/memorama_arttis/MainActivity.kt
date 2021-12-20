@@ -12,6 +12,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
     private lateinit var btn_crear : Button
@@ -80,6 +81,7 @@ class MainActivity : AppCompatActivity() {
         val myRef = database.getReference("game")
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                findHost(textInput.text.toString())
 
             }
             override fun onCancelled(databaseError: DatabaseError) {
@@ -93,12 +95,19 @@ class MainActivity : AppCompatActivity() {
     fun MyUndoListener() {
         val currentGame = database.getReference("party")
         currentGame.get().addOnSuccessListener {
-            val value: HashMap<String, String> = it.value as HashMap<String, String>
-            for (element in value) {
-                val host = value[element.key].toString().split("host=")[1].split(",")[0]
-                if (host == textInput.text.toString()) {
-                    currentGame.child(element.key).removeValue()
-                    break
+            val value: HashMap<String, String>? = it.value as HashMap<String, String>?
+            if (value != null) {
+                for (element in value) {
+                    val host = value[element.key].toString().split("host=")[1].split(",")[0]
+                    if (host == textInput.text.toString()) {
+                        try {
+                            currentGame.child(element.key).removeValue()
+                        } catch (e: Exception) {
+                            println("Error")
+                        }
+
+                        break
+                    }
                 }
             }
         }
@@ -118,17 +127,13 @@ class MainActivity : AppCompatActivity() {
                     val host = value[element.key].toString().split("host=")[1].split(",")[0]
                     if (host == hostName) {
                         val intent = Intent(this, Tarjetas::class.java)
-                        intent.putExtra("HOST", host)
+                        intent.putExtra("HOST", hostName)
                         startActivity(intent)
                         break
                     }
                 }
             }
         }
-        textInput.isEnabled = true
-        btn_buscar.isEnabled = true
-        btn_crear.isEnabled = true
-        sliderDificultad.isEnabled = true
 
     }
 }

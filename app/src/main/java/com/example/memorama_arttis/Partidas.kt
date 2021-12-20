@@ -119,12 +119,14 @@ class Partidas : AppCompatActivity() {
     fun MyUndoListener(hostName: String?) {
         val currentGame = database.getReference("party")
         currentGame.get().addOnSuccessListener {
-            val value: HashMap<String, String> = it.value as HashMap<String, String>
-            for (element in value) {
-                val host = value[element.key].toString().split("host=")[1].split(",")[0]
-                if (host == hostName) {
-                    currentGame.child(element.key).removeValue()
-                    break
+            val value: HashMap<String, String>? = it.value as HashMap<String, String>?
+            if (value != null) {
+                for (element in value) {
+                    val host = value[element.key].toString().split("host=")[1].split(",")[0]
+                    if (host == hostName) {
+                        currentGame.child(element.key).removeValue()
+                        break
+                    }
                 }
             }
         }
