@@ -22,7 +22,6 @@ class MemoramaAdaptar(var context: Context,var arrayList: ArrayList<MemoramaData
         var icons: ImageView = view.findViewById(R.id.imgGrid)
 
         var memoramaItems: MemoramaData = arrayList.get(p0)
-
         icons.setImageResource(memoramaItems.currentImage!!) //aqui le pone la imagen
 
 

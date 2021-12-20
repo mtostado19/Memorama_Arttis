@@ -15,6 +15,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
 
     private var gridView: GridView ?= null
     private var arrayList: ArrayList<MemoramaData> ?= null
+    private var finalDataArray: ArrayList<MemoramaData> ?= null
     private var memoramaAdaptar: MemoramaAdaptar ?= null
     private lateinit var database: FirebaseDatabase
     private var firstSelectedItem = -1
@@ -22,6 +23,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
     private lateinit var currentGame: DatabaseReference
     private var currentKey: String? = ""
     private lateinit var currentGameData: Juego
+    private lateinit var gson: Gson
     //private lateinit var textxd: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,8 +83,6 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
         if (!memo.found && firstSelectedItem != p2) {
             var value = arrayList!![memoramaAdaptar!!.getImageIndex(memo.unique)]
             value.currentImage = value.TrueIcon
-            println(memo.IdPar) // esta es la chingadera que sabe cuales son los pares cuando le das click
-            println("Id unico: ${memo.unique}")
 
             if (firstSelectedItem == -1) {
                 firstSelectedItem = value.unique
@@ -94,6 +94,8 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
                 if (arrayList!![firstSelectedItem].IdPar == arrayList!![secondSelectedItem].IdPar) {
                     arrayList!![firstSelectedItem].found = true
                     arrayList!![secondSelectedItem].found = true
+                    arrayList!![firstSelectedItem].icons = arrayList!![firstSelectedItem].TrueIcon
+                    arrayList!![secondSelectedItem].icons = arrayList!![secondSelectedItem].TrueIcon
                     firstSelectedItem = -1
                     secondSelectedItem = -1
 
@@ -158,18 +160,55 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val value = dataSnapshot.value.toString()
-                val gson = Gson()
+                println("Valueeeeee")
+                println(value)
+                gson = Gson()
+                if (value.contains("gameData=")) {
+                    var text = "${value.split("gameData=")[1].split("}]")[0]}}]".split("},")
+
+                    var data = ArrayList<String>()
+                    text.forEach{
+                        if(text.indexOf(it) == arrayList!!.size - 1){
+                            data.add(it.split("]")[0])
+                        } else if(text.indexOf(it) == 0) {
+                            data.add("${it.split("[")[1]}}")
+                        } else {
+                            data.add("${it}}")
+                        }
+                    }
+                    var finalDataArray = ArrayList<MemoramaData>()
+
+                    data.forEach{
+                        val jsonData = gson.fromJson(it, MemoramaData::class.java)
+                        finalDataArray.add(MemoramaData(
+                            jsonData.icons,
+                            jsonData.IdPar,
+                            jsonData.TrueIcon,
+                            jsonData.unique,
+                            jsonData.currentImage,
+                            jsonData.found
+                        ))
+                    }
+                }
+
+
                 currentGameData = gson.fromJson(value, Juego::class.java)
+                currentGameData.gameData = finalDataArray
 //                val currentGameData = dataSnapshot.value.toString()
                 println(currentGameData)
                 gridView = findViewById(R.id.gridView)
-                arrayList = ArrayList()
                 if (currentGameData.gameData == null) {
+                    arrayList = ArrayList()
                     arrayList = setDataList()
                 } else {
                     arrayList = currentGameData.gameData
                 }
 
+                println("Verifying adapterdata 1")
+                if (finalDataArray != null) {
+                    println(gson.toJson(finalDataArray!![0]))
+                    println(gson.toJson(finalDataArray!![1]))
+                }
                 memoramaAdaptar = MemoramaAdaptar(applicationContext,arrayList!!)
 
                 gridView?.adapter = memoramaAdaptar
