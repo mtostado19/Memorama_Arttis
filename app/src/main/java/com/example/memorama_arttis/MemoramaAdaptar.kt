@@ -23,10 +23,14 @@ class MemoramaAdaptar(var context: Context,var arrayList: ArrayList<MemoramaData
 
         var memoramaItems: MemoramaData = arrayList.get(p0)
 
-        icons.setImageResource(memoramaItems.icons!!) //aqui le pone la imagen
+        icons.setImageResource(memoramaItems.currentImage!!) //aqui le pone la imagen
 
 
         return  view
+    }
+
+    fun getImageIndex(id: Int): Int {
+        return arrayList.indexOf(arrayList.find { it.unique == id })
     }
 
     override fun getCount(): Int {

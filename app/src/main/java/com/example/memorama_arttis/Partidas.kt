@@ -94,6 +94,7 @@ class Partidas : AppCompatActivity() {
                         MyUndoListener(host)
                         val intent = Intent(this@Partidas, Tarjetas::class.java)
                         intent.putExtra("difficult", partysss[position].difficult.toString())
+                        intent.putExtra("HOST", partysss[position].host)
                         startActivity(intent)
                     }
 
