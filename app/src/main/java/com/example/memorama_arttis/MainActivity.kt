@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -17,6 +18,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btn_buscar : Button
     private lateinit var textInput : EditText
     private lateinit var sliderDificultad: com.google.android.material.slider.Slider
+    private lateinit var database : FirebaseDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,15 +30,42 @@ class MainActivity : AppCompatActivity() {
         sliderDificultad = findViewById(R.id.sliderDificultad)
 
         // Instancia base de datos
-        val database = FirebaseDatabase.getInstance()
-        btn_crear.setOnClickListener {
+        database = FirebaseDatabase.getInstance()
+        btn_crear.setOnClickListener { it ->
+            val view = it
             val myRef = database.getReference("party")
-            val newParty = PartyClass(textInput.text.toString(), sliderDificultad.value.toInt());
-            myRef.push().setValue(newParty)
-            val mySnackbar = Snackbar.make(it,
-                "Esperando...", 30000)
-            mySnackbar.setAction("Cancelar") { MyUndoListener() }
-            mySnackbar.show()
+            var currentKey = ""
+            myRef.get().addOnSuccessListener {
+                val value: HashMap<String, String> = it.value as HashMap<String, String>
+                for (element in value) {
+                    val host = value[element.key].toString().split("host=")[1].split(",")[0]
+                    if (host == textInput.text.toString()) {
+                        currentKey = element.key
+                        println("------------- key ----------")
+                        println(currentKey)
+                        break
+                    }
+                }
+
+                if (currentKey != "") {
+                    Toast.makeText(this, "El nombre de usuario ya se encuentra en uso", Toast.LENGTH_LONG).show()
+                } else {
+                    textInput.isEnabled = false
+
+                    val newParty = PartyClass(textInput.text.toString(), sliderDificultad.value.toInt());
+                    myRef.push().setValue(newParty)
+
+                    val mySnackbar = Snackbar.make(view,
+                        "Esperando...", 30000)
+                    mySnackbar.setAction("Cancelar") { MyUndoListener() }
+                    mySnackbar.show()
+                }
+
+            }
+
+
+
+
         }
         btn_buscar.setOnClickListener {
             val intento1 = Intent(this, Partidas::class.java)
@@ -44,8 +73,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
     fun MyUndoListener() {
-
-        // obtener el jodido key del jodido objeto y eliminarlo
+        val currentGame = database.getReference("party")
+        currentGame.get().addOnSuccessListener {
+            val value: HashMap<String, String> = it.value as HashMap<String, String>
+            for (element in value) {
+                val host = value[element.key].toString().split("host=")[1].split(",")[0]
+                if (host == textInput.text.toString()) {
+                    currentGame.child(element.key).removeValue()
+                    break
+                }
+            }
+        }
+        textInput.isEnabled = true
 
     }
 }
