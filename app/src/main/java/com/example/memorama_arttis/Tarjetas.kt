@@ -30,6 +30,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
     private var currentKey: String? = ""
     private lateinit var currentGameData: Juego
     private lateinit var gson: Gson
+    private var firstTime: Boolean = true
     //private lateinit var textxd: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,27 +62,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
         }
 
     }
-    private fun setDataList() : ArrayList<MemoramaData>{
-        var arrayList: ArrayList<MemoramaData> = ArrayList()
-        arrayList.add(MemoramaData(R.drawable.card,1,R.drawable.common_google_signin_btn_icon_dark, 0, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card,1,R.drawable.common_google_signin_btn_icon_dark, 1, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card,2,R.drawable.common_google_signin_btn_icon_dark, 2, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card,2,R.drawable.common_google_signin_btn_icon_dark, 3, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card,3,R.drawable.common_google_signin_btn_icon_dark, 4, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card, 3,R.drawable.common_google_signin_btn_icon_dark, 5, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card,4,R.drawable.common_google_signin_btn_icon_dark, 6, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card, 4,R.drawable.common_google_signin_btn_icon_dark, 7, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card,5,R.drawable.common_google_signin_btn_icon_dark, 8, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card,5,R.drawable.common_google_signin_btn_icon_dark, 9, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card,6,R.drawable.common_google_signin_btn_icon_dark, 10, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card,6,R.drawable.common_google_signin_btn_icon_dark, 11, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card,7,R.drawable.common_google_signin_btn_icon_dark, 12, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card,7,R.drawable.common_google_signin_btn_icon_dark, 13, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card,8,R.drawable.common_google_signin_btn_icon_dark, 14, R.drawable.card, false))
-        arrayList.add(MemoramaData(R.drawable.card,8,R.drawable.common_google_signin_btn_icon_dark, 15, R.drawable.card, false))
-//        arrayList.shuffle()
-        return  arrayList
-    }
+
 
     override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
         var memo: MemoramaData = arrayList!!.get(p2)
@@ -144,10 +125,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
                     ))
                 }.await()
             }
-            memoramaAdaptar!!.clear()
-//            memoramaAdaptar!!.addAll(arrayList!!)
-//
-//            gridView?.onItemClickListener = this
+
         }
 
     }
@@ -164,7 +142,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
                 gson = Gson()
                 CoroutineScope(IO).launch {
                     finalDataArray = async {
-                        var arraySize =  if (arrayList != null) arrayList!!.size - 1 else -1
+                        var arraySize =  if (intent.getStringExtra("difficult") == "1") 16 else 36
                         getCurrentValue(value, arraySize)
                     }.await()
 
@@ -173,19 +151,22 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
 
                 currentGameData = gson.fromJson(value, Juego::class.java)
                 currentGameData.gameData = finalDataArray
+//                println("Datos del arreglo final")
+//                println(gson.toJson(finalDataArray))
 //                val currentGameData = dataSnapshot.value.toString()
                 gridView = findViewById(R.id.gridView)
-                if (currentGameData.gameData == null) {
-                    arrayList = ArrayList()
-                    arrayList = setDataList()
+                arrayList = currentGameData.gameData
+
+
+
+                if (firstTime) {
+                    memoramaAdaptar = MemoramaAdaptar(applicationContext,arrayList!!)
+                    gridView?.adapter = memoramaAdaptar
+                    firstTime = false
                 } else {
-                    arrayList = currentGameData.gameData
+                    memoramaAdaptar!!.clear()
+                    memoramaAdaptar!!.addAll(arrayList!!)
                 }
-
-
-                memoramaAdaptar = MemoramaAdaptar(applicationContext,arrayList!!)
-
-                gridView?.adapter = memoramaAdaptar
 
                 gridView?.onItemClickListener = this@Tarjetas
 
@@ -207,12 +188,14 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
     }
 
     suspend fun getCurrentValue(value: String, size: Int): ArrayList<MemoramaData>? {
+        println("Datos dentro del foreach")
+        println(value)
         if (value.contains("gameData=") && size != -1) {
             var text = "${value.split("gameData=")[1].split("}]")[0]}}]".split("},")
 
             var data = ArrayList<String>()
             text.forEach{
-                if(text.indexOf(it) == size){
+                if(text.indexOf(it) == size - 1){
                     data.add(it.split("]")[0])
                 } else if(text.indexOf(it) == 0) {
                     data.add("${it.split("[")[1]}}")
@@ -220,7 +203,9 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
                     data.add("${it}}")
                 }
             }
+
             var finalDataArray = ArrayList<MemoramaData>()
+
 
             data.forEach{
                 val jsonData = gson.fromJson(it, MemoramaData::class.java)
