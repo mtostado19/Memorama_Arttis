@@ -9,6 +9,12 @@ import android.widget.GridView
 import android.widget.TextView
 import com.google.firebase.database.*
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.text.FieldPosition
 
 class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
@@ -82,7 +88,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
         var memo: MemoramaData = arrayList!!.get(p2)
         if (!memo.found && firstSelectedItem != p2) {
             var value = arrayList!![memoramaAdaptar!!.getImageIndex(memo.unique)]
-            value.currentImage = value.TrueIcon
+            value.currentImage = value.trueIcon
 
             if (firstSelectedItem == -1) {
                 firstSelectedItem = value.unique
@@ -91,40 +97,49 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
             }
 
             if (firstSelectedItem != -1 && secondSelectedItem != -1){
-                if (arrayList!![firstSelectedItem].IdPar == arrayList!![secondSelectedItem].IdPar) {
+                if (arrayList!![firstSelectedItem].idPar == arrayList!![secondSelectedItem].idPar) {
                     arrayList!![firstSelectedItem].found = true
                     arrayList!![secondSelectedItem].found = true
-                    arrayList!![firstSelectedItem].icons = arrayList!![firstSelectedItem].TrueIcon
-                    arrayList!![secondSelectedItem].icons = arrayList!![secondSelectedItem].TrueIcon
+                    arrayList!![firstSelectedItem].icons = arrayList!![firstSelectedItem].trueIcon
+                    arrayList!![secondSelectedItem].icons = arrayList!![secondSelectedItem].trueIcon
                     firstSelectedItem = -1
                     secondSelectedItem = -1
 
-                    currentGame.setValue(Juego(currentGameData.host,
-                        currentGameData.guest,
-                        currentGameData.difficulty,
-                        currentGameData.currentPlayer,
-                        currentGameData.hostScore,
-                        currentGameData.guestScore,
-                        arrayList!!
-                    ))
+                    CoroutineScope(IO).launch {
+                        async {
+                            currentGame.setValue(Juego(currentGameData.host,
+                                currentGameData.guest,
+                                currentGameData.difficulty,
+                                currentGameData.currentPlayer,
+                                currentGameData.hostScore,
+                                currentGameData.guestScore,
+                                arrayList!!
+                            ))
+                        }.await()
+                    }
                 } else {
                     arrayList!![firstSelectedItem].currentImage = arrayList!![firstSelectedItem].icons
                     arrayList!![secondSelectedItem].currentImage = arrayList!![secondSelectedItem].icons
                     firstSelectedItem = -1
                     secondSelectedItem = -1
-
-                    currentGame.setValue(Juego(currentGameData.host,
-                        currentGameData.guest,
-                        currentGameData.difficulty,
-                        currentGameData.currentPlayer,
-                        currentGameData.hostScore,
-                        currentGameData.guestScore,
-                        arrayList!!
-                    ))
+                    CoroutineScope(IO).launch {
+                        async {
+                            currentGame.setValue(Juego(currentGameData.host,
+                                currentGameData.guest,
+                                currentGameData.difficulty,
+                                currentGameData.currentPlayer,
+                                currentGameData.hostScore,
+                                currentGameData.guestScore,
+                                arrayList!!
+                            ))
+                        }.await()
+                    }
 
                 }
 
             }
+            println("Array adaper 2")
+            println(gson.toJson(arrayList!!))
             memoramaAdaptar = MemoramaAdaptar(applicationContext,arrayList!!)
             gridView?.adapter = memoramaAdaptar
 
@@ -133,24 +148,6 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
 
     }
 
-    fun getGame(hostName: String?): String? {
-        val currentGame = database.getReference("game")
-        var currentKey: String? = ""
-        currentGame.get().addOnSuccessListener {
-            val value: HashMap<String, String>? = it.value as HashMap<String, String>?
-            if (value != null) {
-                for (element in value) {
-                    val host = value[element.key].toString().split("host=")[1].split(",")[0]
-                    if (host == hostName) {
-                        currentKey = value[element.key]
-                        return@addOnSuccessListener
-                    }
-                }
-            }
-        }
-        return currentKey
-
-    }
 
     fun runCode(key: String?) {
 
@@ -163,32 +160,12 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
                 println("Valueeeeee")
                 println(value)
                 gson = Gson()
-                if (value.contains("gameData=")) {
-                    var text = "${value.split("gameData=")[1].split("}]")[0]}}]".split("},")
+                CoroutineScope(IO).launch {
+                    finalDataArray = async {
+                        getCurrentValue(value)
+                    }.await()
 
-                    var data = ArrayList<String>()
-                    text.forEach{
-                        if(text.indexOf(it) == arrayList!!.size - 1){
-                            data.add(it.split("]")[0])
-                        } else if(text.indexOf(it) == 0) {
-                            data.add("${it.split("[")[1]}}")
-                        } else {
-                            data.add("${it}}")
-                        }
-                    }
-                    var finalDataArray = ArrayList<MemoramaData>()
 
-                    data.forEach{
-                        val jsonData = gson.fromJson(it, MemoramaData::class.java)
-                        finalDataArray.add(MemoramaData(
-                            jsonData.icons,
-                            jsonData.IdPar,
-                            jsonData.TrueIcon,
-                            jsonData.unique,
-                            jsonData.currentImage,
-                            jsonData.found
-                        ))
-                    }
                 }
 
 
@@ -203,12 +180,14 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
                 } else {
                     arrayList = currentGameData.gameData
                 }
-
+                println("Current game data: ${currentGameData.gameData}")
                 println("Verifying adapterdata 1")
                 if (finalDataArray != null) {
                     println(gson.toJson(finalDataArray!![0]))
                     println(gson.toJson(finalDataArray!![1]))
                 }
+
+
                 memoramaAdaptar = MemoramaAdaptar(applicationContext,arrayList!!)
 
                 gridView?.adapter = memoramaAdaptar
@@ -221,12 +200,48 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
                 println("xd error :3")
             }
         }
-        currentGame.addValueEventListener(postListener)
+        CoroutineScope(IO).launch {
+            currentGame.addValueEventListener(postListener)
+        }
 
 
 
 
 
+
+    }
+
+    suspend fun getCurrentValue(value: String): ArrayList<MemoramaData>? {
+        if (value.contains("gameData=")) {
+            var text = "${value.split("gameData=")[1].split("}]")[0]}}]".split("},")
+
+            var data = ArrayList<String>()
+            text.forEach{
+                if(text.indexOf(it) == arrayList!!.size - 1){
+                    data.add(it.split("]")[0])
+                } else if(text.indexOf(it) == 0) {
+                    data.add("${it.split("[")[1]}}")
+                } else {
+                    data.add("${it}}")
+                }
+            }
+            var finalDataArray = ArrayList<MemoramaData>()
+
+            data.forEach{
+                val jsonData = gson.fromJson(it, MemoramaData::class.java)
+                finalDataArray.add(MemoramaData(
+                    jsonData.icons,
+                    jsonData.idPar,
+                    jsonData.trueIcon,
+                    jsonData.unique,
+                    jsonData.currentImage,
+                    jsonData.found
+                ))
+            }
+
+            return finalDataArray
+        }
+        return null
     }
 
 
