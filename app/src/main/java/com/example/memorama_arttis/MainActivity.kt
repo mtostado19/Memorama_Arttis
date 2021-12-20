@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
                     val host = value[element.key].toString().split("host=")[1].split(",")[0]
                     if (host == hostName) {
                         val intent = Intent(this, Tarjetas::class.java)
-                        intent.putExtra("difficult", sliderDificultad.value.toString())
+                        intent.putExtra("difficult", sliderDificultad.value.toInt().toString())
                         startActivity(intent)
                         break
                     }

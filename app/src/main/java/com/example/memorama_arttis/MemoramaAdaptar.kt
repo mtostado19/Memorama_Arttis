@@ -23,7 +23,7 @@ class MemoramaAdaptar(var context: Context,var arrayList: ArrayList<MemoramaData
 
         var memoramaItems: MemoramaData = arrayList.get(p0)
 
-        icons.setImageResource(memoramaItems.icons!!)
+        icons.setImageResource(memoramaItems.icons!!) //aqui le pone la imagen
 
 
         return  view

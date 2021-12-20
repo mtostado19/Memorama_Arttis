@@ -3,10 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Roger/Documents/Roger/Universidad/Movil/Memorama_Arttis/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2703125" />
+        <entry key="..\:/Users/Roger/Documents/Roger/Universidad/Movil/Memorama_Arttis/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2703125" />
         <entry key="..\:/Users/Roger/Documents/Roger/Universidad/Movil/Memorama_Arttis/app/src/main/res/layout/activity_main.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Roger/Documents/Roger/Universidad/Movil/Memorama_Arttis/app/src/main/res/layout/activity_partidas.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Roger/Documents/Roger/Universidad/Movil/Memorama_Arttis/app/src/main/res/layout/activity_recyclerview.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Roger/Documents/Roger/Universidad/Movil/Memorama_Arttis/app/src/main/res/layout/activity_tarjetas.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Roger/Documents/Roger/Universidad/Movil/Memorama_Arttis/app/src/main/res/layout/activity_tarjetas2.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Roger/Documents/Roger/Universidad/Movil/Memorama_Arttis/app/src/main/res/layout/grid_items.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/tosta/AndroidStudioProjects/Memorama_Arttis/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/Users/tosta/AndroidStudioProjects/Memorama_Arttis/app/src/main/res/layout/activity_partidas.xml" value="0.25" />
