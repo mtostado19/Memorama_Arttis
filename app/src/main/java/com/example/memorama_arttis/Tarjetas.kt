@@ -82,9 +82,6 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
                 arrayList!![secondSelectedItem].currentImage = arrayList!![secondSelectedItem].trueIcon
 
                 if (arrayList!![firstSelectedItem].idPar == arrayList!![secondSelectedItem].idPar) {
-                    println("Imprimiendo arreglos")
-                    println(gson.toJson(arrayList!![firstSelectedItem]))
-                    println(gson.toJson(arrayList!![secondSelectedItem]))
                     arrayList!![firstSelectedItem].found = true
                     arrayList!![secondSelectedItem].found = true
                     firstSelectedItem = -1
@@ -151,22 +148,21 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
 
                 currentGameData = gson.fromJson(value, Juego::class.java)
                 currentGameData.gameData = finalDataArray
-//                println("Datos del arreglo final")
-//                println(gson.toJson(finalDataArray))
-//                val currentGameData = dataSnapshot.value.toString()
                 gridView = findViewById(R.id.gridView)
                 arrayList = currentGameData.gameData
 
 
 
-                if (firstTime) {
-                    memoramaAdaptar = MemoramaAdaptar(applicationContext,arrayList!!)
-                    gridView?.adapter = memoramaAdaptar
-                    firstTime = false
-                } else {
-                    memoramaAdaptar!!.clear()
-                    memoramaAdaptar!!.addAll(arrayList!!)
-                }
+                memoramaAdaptar = MemoramaAdaptar(applicationContext,arrayList!!)
+                gridView?.adapter = memoramaAdaptar
+//                if (firstTime) {
+//                    memoramaAdaptar = MemoramaAdaptar(applicationContext,arrayList!!)
+//                    gridView?.adapter = memoramaAdaptar
+//                    firstTime = false
+//                } else {
+//                    memoramaAdaptar!!.clear()
+//                    memoramaAdaptar!!.addAll(arrayList!!)
+//                }
 
                 gridView?.onItemClickListener = this@Tarjetas
 
@@ -188,8 +184,6 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
     }
 
     suspend fun getCurrentValue(value: String, size: Int): ArrayList<MemoramaData>? {
-        println("Datos dentro del foreach")
-        println(value)
         if (value.contains("gameData=") && size != -1) {
             var text = "${value.split("gameData=")[1].split("}]")[0]}}]".split("},")
 
