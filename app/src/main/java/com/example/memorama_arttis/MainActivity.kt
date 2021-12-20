@@ -76,6 +76,18 @@ class MainActivity : AppCompatActivity() {
             val intento1 = Intent(this, Partidas::class.java)
             startActivity(intento1)
         }
+
+        val myRef = database.getReference("game")
+        val postListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+            }
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting Post failed, log a message
+                println("xd error :3")
+            }
+        }
+        myRef.addValueEventListener(postListener)
     }
 
     fun MyUndoListener() {
@@ -87,6 +99,29 @@ class MainActivity : AppCompatActivity() {
                 if (host == textInput.text.toString()) {
                     currentGame.child(element.key).removeValue()
                     break
+                }
+            }
+        }
+        textInput.isEnabled = true
+        btn_buscar.isEnabled = true
+        btn_crear.isEnabled = true
+        sliderDificultad.isEnabled = true
+
+    }
+
+    fun findHost(hostName: String?) {
+        val currentGame = database.getReference("game")
+        currentGame.get().addOnSuccessListener {
+            val value: HashMap<String, String>? = it.value as HashMap<String, String>?
+            if (value != null) {
+                for (element in value) {
+                    val host = value[element.key].toString().split("host=")[1].split(",")[0]
+                    if (host == hostName) {
+                        val intent = Intent(this, Tarjetas::class.java)
+                        intent.putExtra("HOST", host)
+                        startActivity(intent)
+                        break
+                    }
                 }
             }
         }

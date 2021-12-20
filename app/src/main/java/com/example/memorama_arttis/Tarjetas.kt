@@ -9,5 +9,10 @@ class Tarjetas : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tarjetas)
+
+        if (intent != null) {
+            println("REEEEEEEEEE")
+            println(intent.getStringExtra("HOST"))
+        }
     }
 }
