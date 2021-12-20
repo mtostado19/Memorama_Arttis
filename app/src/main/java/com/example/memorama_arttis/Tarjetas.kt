@@ -89,19 +89,29 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
             } else if (secondSelectedItem == -1) {
                 secondSelectedItem = value.unique
             }
+
             if (firstSelectedItem != -1 && secondSelectedItem != -1){
                 if (arrayList!![firstSelectedItem].IdPar == arrayList!![secondSelectedItem].IdPar) {
                     arrayList!![firstSelectedItem].found = true
                     arrayList!![secondSelectedItem].found = true
                     firstSelectedItem = -1
                     secondSelectedItem = -1
+
+                    currentGame.setValue(Juego(currentGameData.host,
+                        currentGameData.guest,
+                        currentGameData.difficulty,
+                        currentGameData.currentPlayer,
+                        currentGameData.hostScore,
+                        currentGameData.guestScore,
+                        arrayList!!
+                    ))
                 } else {
                     arrayList!![firstSelectedItem].currentImage = arrayList!![firstSelectedItem].icons
                     arrayList!![secondSelectedItem].currentImage = arrayList!![secondSelectedItem].icons
                     firstSelectedItem = -1
                     secondSelectedItem = -1
 
-                    currentGame.child(currentKey.toString()).setValue(Juego(currentGameData.host,
+                    currentGame.setValue(Juego(currentGameData.host,
                         currentGameData.guest,
                         currentGameData.difficulty,
                         currentGameData.currentPlayer,
@@ -113,7 +123,6 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
                 }
 
             }
-
             memoramaAdaptar = MemoramaAdaptar(applicationContext,arrayList!!)
             gridView?.adapter = memoramaAdaptar
 
