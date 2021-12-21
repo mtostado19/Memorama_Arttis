@@ -12,6 +12,10 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
@@ -143,27 +147,60 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun findHost(hostName: String?) {
-        val currentGame = database.getReference("game")
+        val currentGame = database.getReference("party")
         try {
             currentGame.get().addOnSuccessListener {
-                val value: HashMap<String, String>? = it.value as HashMap<String, String>?
-                if (value != null) {
-                    for (element in value) {
-                        val host = value[element.key].toString().split("host=")[1].split(",")[0]
-                        if (host == hostName) {
-                            println("Esta entrando un chingo de veces")
-                            val intent = Intent(this, Tarjetas::class.java)
-                            intent.putExtra("difficult", sliderDificultad.value.toInt().toString())
-                            intent.putExtra("HOST", textInput.text.toString())
-                            startActivity(intent)
-                            break
-                        }
-                    }
+                var value = it.getValue()
+                println(value)
+                if (value.toString().contains("host=$hostName")) {
+                    val intent = Intent(this, Tarjetas::class.java)
+                    intent.putExtra("difficult", sliderDificultad.value.toInt().toString())
+                    intent.putExtra("HOST", textInput.text.toString())
+                    startActivity(intent)
                 }
             }
         } catch (error: Exception) {
             println("ERROR")
         }
 
+    }
+
+    fun foundDeleted (hostName: String?) {
+        println("Entrando a la función")
+        val currentGame = database.getReference("party")
+        var found = false
+
+        currentGame.get().addOnSuccessListener {
+
+            val value: HashMap<String, String>? = it.value as HashMap<String, String>?
+            if (value != null) {
+                CoroutineScope(IO).launch {
+                    found = async {
+                        getValueUser(value)
+                    }.await()
+                }
+                if (found) {
+                    println("User found inside: $found")
+                    val intent = Intent(this, Tarjetas::class.java)
+                    intent.putExtra("difficult", sliderDificultad.value.toInt().toString())
+                    intent.putExtra("HOST", textInput.text.toString())
+                    startActivity(intent)
+                }
+            }
+        }
+    }
+
+    suspend fun getValueUser (value: HashMap<String, String>?): Boolean {
+
+        if (value != null) {
+            for(element in value) {
+                val host = value[element.key].toString().split("host=")[1].split(",")[0]
+                if (host == textInput.text.toString()) {
+                    return true
+                }
+            }
+            return false
+        }
+        return false
     }
 }
