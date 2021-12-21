@@ -161,6 +161,7 @@ class MainActivity : AppCompatActivity() {
                             val intent = Intent(this@MainActivity, Tarjetas::class.java)
                             intent.putExtra("difficult", sliderDificultad.value.toInt().toString())
                             intent.putExtra("HOST", textInput.text.toString())
+                            intent.putExtra("CURRENT", textInput.text.toString())
                             startActivity(intent)
                         }
                     }.await()

@@ -22,6 +22,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
     private var gridView: GridView ?= null
     private var arrayList: ArrayList<MemoramaData> ?= null
     private var finalDataArrayMain: ArrayList<MemoramaData> ?= null
+    private lateinit var txtUser: TextView
     private var memoramaAdaptar: MemoramaAdaptar ?= null
     private lateinit var database: FirebaseDatabase
     private var firstSelectedItem = -1
@@ -32,21 +33,27 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
     private lateinit var gson: Gson
     private var firstTime: Boolean = true
     private var finished: Boolean = true
+    private var currentUser: String? = null
     //private lateinit var textxd: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        txtUser = findViewById(R.id.currentPlayerTXT)
+
 
         database = FirebaseDatabase.getInstance()
         var host:String? = ""
         if (intent != null) {
             host = intent.getStringExtra("HOST")
+            currentUser = intent.getStringExtra("CURRENT")
             if (intent.getStringExtra("difficult") == "1"){
                 setContentView(R.layout.activity_tarjetas)
             }else{
                 setContentView(R.layout.activity_tarjetas2)
             }
         }
+
+        txtUser.text = "guest"
 
 
         val currentGame = database.getReference("game")
@@ -67,82 +74,84 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
 
 
     override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-        var memo: MemoramaData = arrayList!!.get(p2)
-        CoroutineScope(IO).launch {
-            async {
+        if (currentUser == currentGameData.currentPlayer) {
+            println("EL JUGADOR CORRECTO ESTA JUGANDO")
+            var memo: MemoramaData = arrayList!!.get(p2)
+            CoroutineScope(IO).launch {
+                async {
 
-        if (!memo.found && firstSelectedItem != p2) {
-
-            for(element in arrayList!!) {
-                if(!element.found) {
-                    finished = false
-                    break;
-                }
-            }
-
-            if (!finished) {
-                val valueIndex = memoramaAdaptar!!.getImageIndex(memo.unique)
-                var value = arrayList!![valueIndex]
-                value.currentImage = value.trueIcon
-
-                if (firstSelectedItem == -1) {
-                    firstSelectedItem = valueIndex
-                } else if (secondSelectedItem == -1) {
-                    secondSelectedItem = valueIndex
-                }
-
-                if (firstSelectedItem != -1 && secondSelectedItem != -1){
-                    arrayList!![firstSelectedItem].currentImage = arrayList!![firstSelectedItem].trueIcon
-                    arrayList!![secondSelectedItem].currentImage = arrayList!![secondSelectedItem].trueIcon
-
-                    if (arrayList!![firstSelectedItem].idPar == arrayList!![secondSelectedItem].idPar) {
-                        arrayList!![firstSelectedItem].found = true
-                        arrayList!![secondSelectedItem].found = true
-                        firstSelectedItem = -1
-                        secondSelectedItem = -1
-                        if (currentGameData.currentPlayer == currentGameData.host) {
-                            currentGameData.currentPlayer = currentGameData.guest
-                            currentGameData.hostScore += 1
-
-                        } else {
-                            currentGameData.currentPlayer = currentGameData.host
-                            currentGameData.guestScore += 1
+                    for(element in arrayList!!) {
+                        if(!element.found) {
+                            finished = false
+                            break;
                         }
-
-                    } else {
-                        if (currentGameData.currentPlayer == currentGameData.host) {
-                            currentGameData.currentPlayer = currentGameData.guest
-
-                        } else {
-                            currentGameData.currentPlayer = currentGameData.host
-                        }
-                        arrayList!![firstSelectedItem].currentImage = arrayList!![firstSelectedItem].icons
-                        arrayList!![secondSelectedItem].currentImage = arrayList!![secondSelectedItem].icons
-                        firstSelectedItem = -1
-                        secondSelectedItem = -1
                     }
+                    if (!memo.found && firstSelectedItem != p2) {
+                        if (!finished) {
+                            val valueIndex = memoramaAdaptar!!.getImageIndex(memo.unique)
+                            var value = arrayList!![valueIndex]
+                            value.currentImage = value.trueIcon
 
-                }
+                            if (firstSelectedItem == -1) {
+                                firstSelectedItem = valueIndex
+                            } else if (secondSelectedItem == -1) {
+                                secondSelectedItem = valueIndex
+                            }
 
+                            if (firstSelectedItem != -1 && secondSelectedItem != -1){
+                                arrayList!![firstSelectedItem].currentImage = arrayList!![firstSelectedItem].trueIcon
+                                arrayList!![secondSelectedItem].currentImage = arrayList!![secondSelectedItem].trueIcon
 
-                currentGame.setValue(Juego(currentGameData.host,
-                    currentGameData.guest,
-                    currentGameData.difficulty,
-                    currentGameData.currentPlayer,
-                    currentGameData.hostScore,
-                    currentGameData.guestScore,
-                    arrayList!!
-                ))
+                                if (arrayList!![firstSelectedItem].idPar == arrayList!![secondSelectedItem].idPar) {
+                                    arrayList!![firstSelectedItem].found = true
+                                    arrayList!![secondSelectedItem].found = true
+                                    firstSelectedItem = -1
+                                    secondSelectedItem = -1
+                                    if (currentGameData.currentPlayer == currentGameData.host) {
+                                        currentGameData.currentPlayer = currentGameData.guest
+                                        currentGameData.hostScore += 1
 
+                                    } else {
+                                        currentGameData.currentPlayer = currentGameData.host
+                                        currentGameData.guestScore += 1
+                                    }
 
-            } else {
-                println("YA TERMINO EL JUEJO")
+                                } else {
+                                    if (currentGameData.currentPlayer == currentGameData.host) {
+                                        currentGameData.currentPlayer = currentGameData.guest
+
+                                    } else {
+                                        currentGameData.currentPlayer = currentGameData.host
+                                    }
+                                    arrayList!![firstSelectedItem].currentImage = arrayList!![firstSelectedItem].icons
+                                    arrayList!![secondSelectedItem].currentImage = arrayList!![secondSelectedItem].icons
+                                    firstSelectedItem = -1
+                                    secondSelectedItem = -1
+                                }
+                                txtUser.text = currentGameData.currentPlayer
+
+                            }
+
+                            CoroutineScope(IO).launch {
+                                async {
+                                    currentGame.setValue(Juego(currentGameData.host,
+                                        currentGameData.guest,
+                                        currentGameData.difficulty,
+                                        currentGameData.currentPlayer,
+                                        currentGameData.hostScore,
+                                        currentGameData.guestScore,
+                                        arrayList!!
+                                    ))
+                                }.await()
+                            }
+                        }
+
+                    } else if (finished) {
+                        println("YA TERMINO EL JUEJO")
+                    }
+                }.await()
             }
-
         }
-            }.await()
-        }
-
     }
 
 
@@ -166,6 +175,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
 
                 }
                 currentGameData = gson.fromJson(value, Juego::class.java)
+                txtUser.text = currentGameData.currentPlayer
                 currentGameData.gameData = finalDataArrayMain
 
                 arrayList = currentGameData.gameData
