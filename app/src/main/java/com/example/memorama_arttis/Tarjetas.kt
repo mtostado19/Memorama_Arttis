@@ -38,7 +38,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        txtUser = findViewById(R.id.currentPlayerTXT)
+
 
 
         database = FirebaseDatabase.getInstance()
@@ -52,7 +52,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
                 setContentView(R.layout.activity_tarjetas2)
             }
         }
-
+        txtUser = findViewById(R.id.currentPlayerTXT)
         txtUser.text = "guest"
 
 
@@ -128,7 +128,6 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
                                     firstSelectedItem = -1
                                     secondSelectedItem = -1
                                 }
-                                txtUser.text = currentGameData.currentPlayer
 
                             }
 
