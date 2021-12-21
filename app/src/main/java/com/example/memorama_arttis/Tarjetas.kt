@@ -73,7 +73,6 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
 
         if (!memo.found && firstSelectedItem != p2) {
 
-            finished = true
             for(element in arrayList!!) {
                 if(!element.found) {
                     finished = false
@@ -81,7 +80,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
                 }
             }
 
-            if (finished) {
+            if (!finished) {
                 val valueIndex = memoramaAdaptar!!.getImageIndex(memo.unique)
                 var value = arrayList!![valueIndex]
                 value.currentImage = value.trueIcon
