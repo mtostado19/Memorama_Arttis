@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textInput : EditText
     private lateinit var sliderDificultad: com.google.android.material.slider.Slider
     private lateinit var database : FirebaseDatabase
+    private var launchgame: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +64,7 @@ class MainActivity : AppCompatActivity() {
                     btn_buscar.isEnabled = false
                     btn_crear.isEnabled = false
                     sliderDificultad.isEnabled = false
+                    launchgame = true
 
                     val newParty = PartyClass(textInput.text.toString(), sliderDificultad.value.toInt());
                     myRef.push().setValue(newParty)
@@ -150,14 +152,20 @@ class MainActivity : AppCompatActivity() {
         val currentGame = database.getReference("party")
         try {
             currentGame.get().addOnSuccessListener {
-                var value = it.getValue()
-                println(value)
-                if (value.toString().contains("host=$hostName")) {
-                    val intent = Intent(this, Tarjetas::class.java)
-                    intent.putExtra("difficult", sliderDificultad.value.toInt().toString())
-                    intent.putExtra("HOST", textInput.text.toString())
-                    startActivity(intent)
+                CoroutineScope(IO).launch{
+                    async {
+                        var value = it.getValue()
+                        println("this is the value: $value")
+                        println("this is the value: $launchgame")
+                        if (launchgame) {
+                            val intent = Intent(this@MainActivity, Tarjetas::class.java)
+                            intent.putExtra("difficult", sliderDificultad.value.toInt().toString())
+                            intent.putExtra("HOST", textInput.text.toString())
+                            startActivity(intent)
+                        }
+                    }.await()
                 }
+
             }
         } catch (error: Exception) {
             println("ERROR")

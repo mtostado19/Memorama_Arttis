@@ -16,6 +16,11 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.lang.Exception
 
 class PartysAdapter(val tostadoCum: ArrayList<PartyClass>) :
@@ -91,8 +96,16 @@ class Partidas : AppCompatActivity() {
                 adapter.setOnItemClickListener((object : PartysAdapter.onItemClickListener{
                     override fun onItemClick(position: Int) {
                         val host = partysss[position].host
-                        createGame(host, partysss[position].difficult)
-                        MyUndoListener(host)
+                        CoroutineScope(IO).launch {
+                            async {
+                                createGame(host, partysss[position].difficult)
+                            }.await()
+
+                            async {
+                                MyUndoListener(host)
+                            }.await()
+                        }
+                        
                         val intent = Intent(this@Partidas, Tarjetas::class.java)
                         intent.putExtra("difficult", partysss[position].difficult.toString())
                         intent.putExtra("HOST", partysss[position].host)

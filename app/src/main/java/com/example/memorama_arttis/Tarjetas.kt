@@ -31,6 +31,7 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
     private lateinit var currentGameData: Juego
     private lateinit var gson: Gson
     private var firstTime: Boolean = true
+    private var finished: Boolean = true
     //private lateinit var textxd: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,63 +68,80 @@ class Tarjetas : AppCompatActivity(), AdapterView.OnItemClickListener {
 
     override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
         var memo: MemoramaData = arrayList!!.get(p2)
-        if (!memo.found && firstSelectedItem != p2) {
-            val valueIndex = memoramaAdaptar!!.getImageIndex(memo.unique)
-            var value = arrayList!![valueIndex]
-            value.currentImage = value.trueIcon
+        CoroutineScope(IO).launch {
+            async {
 
-            if (firstSelectedItem == -1) {
-                firstSelectedItem = valueIndex
-            } else if (secondSelectedItem == -1) {
-                secondSelectedItem = valueIndex
+        if (!memo.found && firstSelectedItem != p2) {
+
+            finished = true
+            for(element in arrayList!!) {
+                if(!element.found) {
+                    finished = false
+                    break;
+                }
             }
 
-            if (firstSelectedItem != -1 && secondSelectedItem != -1){
-                arrayList!![firstSelectedItem].currentImage = arrayList!![firstSelectedItem].trueIcon
-                arrayList!![secondSelectedItem].currentImage = arrayList!![secondSelectedItem].trueIcon
+            if (finished) {
+                val valueIndex = memoramaAdaptar!!.getImageIndex(memo.unique)
+                var value = arrayList!![valueIndex]
+                value.currentImage = value.trueIcon
 
-                if (arrayList!![firstSelectedItem].idPar == arrayList!![secondSelectedItem].idPar) {
-                    arrayList!![firstSelectedItem].found = true
-                    arrayList!![secondSelectedItem].found = true
-                    firstSelectedItem = -1
-                    secondSelectedItem = -1
-                    if (currentGameData.currentPlayer == currentGameData.host) {
-                        currentGameData.currentPlayer = currentGameData.guest
-                        currentGameData.hostScore += 1
-
-                    } else {
-                        currentGameData.currentPlayer = currentGameData.host
-                        currentGameData.guestScore += 1
-                    }
-
-                } else {
-                    if (currentGameData.currentPlayer == currentGameData.host) {
-                        currentGameData.currentPlayer = currentGameData.guest
-
-                    } else {
-                        currentGameData.currentPlayer = currentGameData.host
-                    }
-                    arrayList!![firstSelectedItem].currentImage = arrayList!![firstSelectedItem].icons
-                    arrayList!![secondSelectedItem].currentImage = arrayList!![secondSelectedItem].icons
-                    firstSelectedItem = -1
-                    secondSelectedItem = -1
+                if (firstSelectedItem == -1) {
+                    firstSelectedItem = valueIndex
+                } else if (secondSelectedItem == -1) {
+                    secondSelectedItem = valueIndex
                 }
 
+                if (firstSelectedItem != -1 && secondSelectedItem != -1){
+                    arrayList!![firstSelectedItem].currentImage = arrayList!![firstSelectedItem].trueIcon
+                    arrayList!![secondSelectedItem].currentImage = arrayList!![secondSelectedItem].trueIcon
+
+                    if (arrayList!![firstSelectedItem].idPar == arrayList!![secondSelectedItem].idPar) {
+                        arrayList!![firstSelectedItem].found = true
+                        arrayList!![secondSelectedItem].found = true
+                        firstSelectedItem = -1
+                        secondSelectedItem = -1
+                        if (currentGameData.currentPlayer == currentGameData.host) {
+                            currentGameData.currentPlayer = currentGameData.guest
+                            currentGameData.hostScore += 1
+
+                        } else {
+                            currentGameData.currentPlayer = currentGameData.host
+                            currentGameData.guestScore += 1
+                        }
+
+                    } else {
+                        if (currentGameData.currentPlayer == currentGameData.host) {
+                            currentGameData.currentPlayer = currentGameData.guest
+
+                        } else {
+                            currentGameData.currentPlayer = currentGameData.host
+                        }
+                        arrayList!![firstSelectedItem].currentImage = arrayList!![firstSelectedItem].icons
+                        arrayList!![secondSelectedItem].currentImage = arrayList!![secondSelectedItem].icons
+                        firstSelectedItem = -1
+                        secondSelectedItem = -1
+                    }
+
+                }
+
+
+                currentGame.setValue(Juego(currentGameData.host,
+                    currentGameData.guest,
+                    currentGameData.difficulty,
+                    currentGameData.currentPlayer,
+                    currentGameData.hostScore,
+                    currentGameData.guestScore,
+                    arrayList!!
+                ))
+
+
+            } else {
+                println("YA TERMINO EL JUEJO")
             }
 
-            CoroutineScope(IO).launch {
-                async {
-                    currentGame.setValue(Juego(currentGameData.host,
-                        currentGameData.guest,
-                        currentGameData.difficulty,
-                        currentGameData.currentPlayer,
-                        currentGameData.hostScore,
-                        currentGameData.guestScore,
-                        arrayList!!
-                    ))
-                }.await()
-            }
-
+        }
+            }.await()
         }
 
     }
